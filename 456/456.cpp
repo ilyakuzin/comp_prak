@@ -45,7 +45,6 @@ int main() {
     // Вычисляем y_i на самом нижнем слое. Заодно вычисляем результат на самом верхнем слое.
     std::vector<double> prevY_i(N); // y_(i-1).
     std::vector<double> y_i(N);     // y_i
-    std::vector<double> nextY_i(N); // y_(i+1).
     double x = 0.;
 
     //результирующая функция + у на 0 слое + краевые условия
@@ -101,9 +100,9 @@ int main() {
             x += h;
         }
 
-        nextY_i[N - 1] = mu_2(t);
+        y_i[N - 1] = mu_2(t);
         for (int i = N - 2; i >= 0; i--) { // Обратный ход метода прогонки: вычисление y_i по y_(i+1), alpha_(i+1) и beta_(i+1).
-            nextY_i[i] = alpha_i[i] * nextY_i[i + 1] + beta_i[i];
+            y_i[i] = alpha_i[i] * y_i[i + 1] + beta_i[i];
         }
         x = 0.;
         //проверка
@@ -113,7 +112,6 @@ int main() {
         }
 
         prevY_i = y_i;
-        y_i = nextY_i;
 
         for (int i = 0; i < N; i++) { // Обновление коэффициентов D_i по y_i и y_(i-1).
             D_i[i] = (2 * y_i[i] -  prevY_i[i] + tau * f_i_jpp[i]);
@@ -129,7 +127,7 @@ int main() {
     double result_norma = 0.;
     for (int i = 0; i < N; i++) {
         result_norma = std::max(result_norma, std::abs(result_i[i]));
-        std::cout << "|" << nextY_i[i] << " - " << result_i[i] << "| = " << std::abs(nextY_i[i] - result_i[i]) << std::endl;
+        std::cout << "|" << y_i[i] << " - " << result_i[i] << "| = " << std::abs(y_i[i] - result_i[i]) << std::endl;
     }
 
     std::cout << "Кубическая норма разности полученного решения и правильного, z: " << std::endl;
